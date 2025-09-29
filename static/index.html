@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Transcription Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="background"></div>
+    <main class="shell">
+      <header class="header glass">
+        <div>
+          <h1>Transcription Studio</h1>
+          <p>Upload a WAV file, provide your OpenAI key, and let the assistant handle chunked transcription.</p>
+        </div>
+  <div class="badge">© Juraj Mavračić 2025</div>
+      </header>
+
+      <section class="panel glass">
+        <label class="field-label" for="apiKeyInput">OpenAI API key</label>
+        <div class="field-group">
+          <input
+            id="apiKeyInput"
+            type="password"
+            autocomplete="off"
+            placeholder="paste your OPENAI_API_KEY here"
+          />
+          <button id="toggleKey" type="button" class="ghost">Show</button>
+        </div>
+        <p class="hint">Key is used only for this session and never stored.</p>
+      </section>
+
+      <section id="dropZone" class="panel glass drop-zone">
+        <input id="fileInput" type="file" accept=".wav" hidden />
+        <div class="drop-content">
+          <p class="drop-title">Drag &amp; drop your audio</p>
+          <p class="drop-subtitle">or</p>
+          <button id="uploadButton" type="button" class="primary">Browse file</button>
+          <p id="fileName" class="file-name">No file selected</p>
+        </div>
+      </section>
+
+      <section class="panel glass controls">
+        <button id="transcribeButton" class="primary" disabled>Start transcription</button>
+        <button id="saveButton" class="secondary" disabled>Save transcript</button>
+      </section>
+
+      <section class="panel glass status-panel">
+        <h2>Status</h2>
+        <div id="statusLog" class="status-log">
+          <p class="muted">Waiting for audio and API key…</p>
+        </div>
+      </section>
+
+      <section id="transcriptSection" class="panel glass transcript" hidden>
+        <h2>Transcript</h2>
+        <pre id="transcriptOutput"></pre>
+      </section>
+    </main>
+    <script type="module" src="/static/app.js"></script>
+  </body>
+</html>

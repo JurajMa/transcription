@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+.installed.cfg
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+conda-meta/
+conda_env/
+
+# Environment variables / secrets
+.env
+.env.*
+*.pem
+
+# IDE / editor settings
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# Testing & coverage
+.coverage
+.pytest_cache/
+.tox/
+.mypy_cache/
+.nox/
+.hypothesis/
+.htmlcov/
+
+# Logs & local data
+*.log
+*.sqlite3
+debug.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Generated audio chunks & transcripts
+**/chunks/
+**/transcript.txt
+
+# Temporary files
+*.tmp
+*.temp
+~*
