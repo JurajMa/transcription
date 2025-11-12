@@ -54,13 +54,16 @@ const setLoading = (isLoading) => {
 
 const selectFile = (file) => {
   if (!file) return;
-  if (!file.name.toLowerCase().endsWith(".wav")) {
-    setStatus("Please upload a WAV file (16kHz mono recommended).", { append: false });
+  const supportedFormats = ['.wav', '.m4a', '.mp3', '.mp4', '.aac', '.flac', '.ogg'];
+  const fileExt = file.name.toLowerCase().match(/\.[^.]+$/)?.[0];
+  if (!fileExt || !supportedFormats.includes(fileExt)) {
+    setStatus(`Please upload a supported audio file: ${supportedFormats.join(', ')}`, { append: false });
     return;
   }
   selectedFile = file;
   fileName.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-  setStatus(`Ready to transcribe ${file.name}.`, { append: false });
+  const conversionNote = fileExt === '.wav' ? '' : ' (will be converted to WAV)';
+  setStatus(`Ready to transcribe ${file.name}${conversionNote}.`, { append: false });
   resetTranscript();
   updateButtons();
 };
