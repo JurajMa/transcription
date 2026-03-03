@@ -12,6 +12,9 @@ from openai import OpenAI
 
 LogFn = Callable[[str], None]
 
+# Number of characters from the previous chunk's transcript used as prompt context
+_PROMPT_CONTEXT_CHARS = 200
+
 
 def human_time(seconds: float) -> str:
     minutes, secs = divmod(int(seconds), 60)
@@ -47,7 +50,7 @@ class TranscriptionService:
         self,
         *,
         model: str = "gpt-4o-transcribe",
-        response_format: str = "text",
+        response_format: str = "json",
         max_chunk_secs: float = 90.0,
         chunk_overlap_secs: float = 1.0,
         max_chunk_bytes: int = 24 * 1024 * 1024,
@@ -112,7 +115,8 @@ class TranscriptionService:
 
             for index, chunk_path in enumerate(chunk_paths, start=1):
                 log(f"Transcribing chunk {index}/{total_chunks}: {chunk_path.name}")
-                chunk_text = self._transcribe_file(client, chunk_path, log).strip()
+                prompt = previous_text[-_PROMPT_CONTEXT_CHARS:] if previous_text else ""
+                chunk_text = self._transcribe_file(client, chunk_path, log, prompt=prompt).strip()
                 if previous_text:
                     chunk_text = _dedup_overlap(previous_text, chunk_text)
                 previous_text = chunk_text
@@ -213,7 +217,7 @@ class TranscriptionService:
         log(f"Split into {len(chunks)} chunk(s).")
         return chunks
 
-    def _transcribe_file(self, client: OpenAI, path: Path, log: LogFn) -> str:
+    def _transcribe_file(self, client: OpenAI, path: Path, log: LogFn, *, prompt: str = "") -> str:
         last_error: Optional[Exception] = None
         for attempt in range(1, self.retry_max + 1):
             try:
@@ -222,6 +226,7 @@ class TranscriptionService:
                         model=self.model,
                         file=fh,
                         response_format=self.response_format,
+                        prompt=prompt,
                     )
                 text = response.text if hasattr(response, "text") else str(response)
                 return text
