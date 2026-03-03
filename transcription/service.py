@@ -97,7 +97,7 @@ class TranscriptionService:
         temp_dir: Optional[TemporaryDirectory[str]] = None
         try:
             if chunk_dir is None and cleanup_chunks:
-                temp_dir = TemporaryDirectory(prefix="transcription_chunks_")
+                temp_dir = TemporaryDirectory(prefix="transcription_audio_")
                 chunk_dir_path = Path(temp_dir.name)
             else:
                 chunk_dir_path = Path(chunk_dir) if chunk_dir else audio_path.parent / "chunks"
@@ -122,6 +122,9 @@ class TranscriptionService:
                 previous_text = chunk_text
                 header = f"\n--- [Chunk {index}/{total_chunks}] {chunk_path.name} ---\n"
                 transcript_parts.append(header + chunk_text + "\n")
+                if cleanup_chunks:
+                    with contextlib.suppress(OSError):
+                        chunk_path.unlink()
 
             transcript_text = "".join(transcript_parts) if transcript_parts else ""
 
