@@ -10,7 +10,7 @@ from pydub import AudioSegment
 
 from transcription import TranscriptionService
 
-ALLOWED_EXTENSIONS = {".wav", ".m4a", ".mp3", ".mp4", ".aac", ".flac", ".ogg"}
+ALLOWED_EXTENSIONS = {".wav", ".m4a", ".mp3", ".mp4", ".aac", ".flac", ".ogg", ".webm"}
 
 app = FastAPI(title="Transcription Studio", version="1.0")
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")

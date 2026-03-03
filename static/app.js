@@ -9,9 +9,17 @@ const saveButton = document.getElementById("saveButton");
 const statusLog = document.getElementById("statusLog");
 const transcriptSection = document.getElementById("transcriptSection");
 const transcriptOutput = document.getElementById("transcriptOutput");
+const recordButton = document.getElementById("recordButton");
+const stopButton = document.getElementById("stopButton");
+const recordTimer = document.getElementById("recordTimer");
+const recordingIndicator = document.getElementById("recordingIndicator");
 
 let selectedFile = null;
 let transcriptText = "";
+let mediaRecorder = null;
+let audioChunks = [];
+let timerInterval = null;
+let recordingSeconds = 0;
 
 const updateButtons = () => {
   const hasFile = Boolean(selectedFile);
@@ -46,6 +54,7 @@ const setLoading = (isLoading) => {
   uploadButton.disabled = isLoading;
   apiKeyInput.disabled = isLoading;
   toggleKey.disabled = isLoading;
+  recordButton.disabled = isLoading;
   dropZone.classList.toggle("dragging", isLoading);
   if (isLoading) {
     setStatus(["Uploading audio…", "Contacting OpenAI…"], { append: false });
@@ -54,7 +63,7 @@ const setLoading = (isLoading) => {
 
 const selectFile = (file) => {
   if (!file) return;
-  const supportedFormats = ['.wav', '.m4a', '.mp3', '.mp4', '.aac', '.flac', '.ogg'];
+  const supportedFormats = ['.wav', '.m4a', '.mp3', '.mp4', '.aac', '.flac', '.ogg', '.webm'];
   const fileExt = file.name.toLowerCase().match(/\.[^.]+$/)?.[0];
   if (!fileExt || !supportedFormats.includes(fileExt)) {
     setStatus(`Please upload a supported audio file: ${supportedFormats.join(', ')}`, { append: false });
@@ -188,6 +197,72 @@ saveButton.addEventListener("click", () => {
   anchor.click();
   document.body.removeChild(anchor);
   URL.revokeObjectURL(anchor.href);
+});
+
+const formatTime = (seconds) => {
+  const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${m}:${s}`;
+};
+
+const setRecording = (isRecording) => {
+  recordButton.disabled = isRecording;
+  stopButton.disabled = !isRecording;
+  uploadButton.disabled = isRecording;
+  transcribeButton.disabled = isRecording || !(selectedFile && apiKeyInput.value.trim());
+  recordTimer.hidden = !isRecording;
+  recordingIndicator.hidden = !isRecording;
+  dropZone.classList.toggle("recording", isRecording);
+};
+
+recordButton.addEventListener("click", async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    recordingSeconds = 0;
+    recordTimer.textContent = formatTime(0);
+
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "";
+    mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+    mediaRecorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) audioChunks.push(event.data);
+    });
+
+    mediaRecorder.addEventListener("stop", () => {
+      stream.getTracks().forEach((track) => track.stop());
+      clearInterval(timerInterval);
+      setRecording(false);
+
+      const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+      const mimeUsed = mediaRecorder.mimeType || "audio/webm";
+      const extMap = { "audio/webm": ".webm", "audio/ogg": ".ogg", "audio/mp4": ".mp4", "audio/wav": ".wav" };
+      const ext = Object.entries(extMap).find(([k]) => mimeUsed.startsWith(k))?.[1] ?? ".webm";
+      const file = new File([blob], `recording${ext}`, { type: blob.type });
+      selectFile(file);
+
+      if (apiKeyInput.value.trim()) {
+        transcribeButton.click();
+      }
+    });
+
+    mediaRecorder.start();
+    setRecording(true);
+    setStatus("Recording… click Stop when done.", { append: false });
+
+    timerInterval = setInterval(() => {
+      recordingSeconds += 1;
+      recordTimer.textContent = formatTime(recordingSeconds);
+    }, 1000);
+  } catch (err) {
+    setStatus(`Microphone error: ${err.message}`, { append: false });
+  }
+});
+
+stopButton.addEventListener("click", () => {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
 });
 
 updateButtons();
