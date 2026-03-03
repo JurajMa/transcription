@@ -38,12 +38,22 @@
       </section>
 
       <section id="dropZone" class="panel glass drop-zone">
-        <input id="fileInput" type="file" accept=".wav,.m4a,.mp3,.mp4,.aac,.flac,.ogg" hidden />
+        <input id="fileInput" type="file" accept=".wav,.m4a,.mp3,.mp4,.aac,.flac,.ogg,.webm" hidden />
         <div class="drop-content">
           <p class="drop-title">Drag &amp; drop your audio</p>
-          <p class="drop-subtitle">WAV, M4A, MP3, AAC, FLAC, OGG supported</p>
+          <p class="drop-subtitle">WAV, M4A, MP3, AAC, FLAC, OGG, WEBM supported</p>
           <button id="uploadButton" type="button" class="primary">Browse file</button>
           <p id="fileName" class="file-name">No file selected</p>
+        </div>
+      </section>
+
+      <section class="panel glass record-panel">
+        <p class="field-label">Or record directly</p>
+        <div class="record-controls">
+          <button id="recordButton" type="button" class="primary record-btn">🎙️ Record</button>
+          <button id="stopButton" type="button" class="secondary" disabled>⏹️ Stop</button>
+          <span id="recordTimer" class="record-timer" hidden>00:00</span>
+          <span id="recordingIndicator" class="recording-indicator" hidden></span>
         </div>
       </section>
 
