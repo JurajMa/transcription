@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import atexit
+import logging
+import shutil
+import signal
+import sys
 import tempfile
+import types
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -11,11 +17,55 @@ from pydub import AudioSegment
 from transcription import TranscriptionService
 
 ALLOWED_EXTENSIONS = {".wav", ".m4a", ".mp3", ".mp4", ".aac", ".flac", ".ogg", ".webm"}
+_TEMP_PREFIX = "transcription_audio_"
+
+logger = logging.getLogger(__name__)
+
+# Process-level registry of temp paths created by this process.
+_temp_registry: set[Path] = set()
+
+
+def _cleanup_registered() -> None:
+    """Delete all temp paths registered by this process."""
+    for path in list(_temp_registry):
+        try:
+            if path.is_dir():
+                shutil.rmtree(path, ignore_errors=True)
+            elif path.exists():
+                path.unlink()
+        except OSError:
+            pass
+        _temp_registry.discard(path)
+
+
+def _sigterm_handler(signum: int, frame: types.FrameType | None) -> None:
+    """Ensure cleanup runs when the process is asked to terminate."""
+    sys.exit(0)
+
+
+atexit.register(_cleanup_registered)
+signal.signal(signal.SIGTERM, _sigterm_handler)
+signal.signal(signal.SIGINT, _sigterm_handler)
 
 app = FastAPI(title="Transcription Studio", version="1.0")
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 
 service = TranscriptionService()
+
+
+@app.on_event("startup")
+async def startup_cleanup() -> None:
+    """Remove leftover temp files/dirs from a previous crashed run."""
+    tmp_dir = Path(tempfile.gettempdir())
+    for item in tmp_dir.glob(f"{_TEMP_PREFIX}*"):
+        try:
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink()
+            logger.info("Startup cleanup: removed %s", item)
+        except OSError as exc:
+            logger.warning("Startup cleanup: could not remove %s: %s", item, exc)
 
 
 @app.get("/")
@@ -64,10 +114,11 @@ async def transcribe(
         logs.append(message)
 
     # Persist upload to a temp file for processing
-    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp_file:
+    with tempfile.NamedTemporaryFile(delete=False, prefix=_TEMP_PREFIX, suffix=ext) as tmp_file:
         temp_path = Path(tmp_file.name)
         contents = await audio.read()
         tmp_file.write(contents)
+    _temp_registry.add(temp_path)
 
     wav_path = None
     try:
@@ -76,8 +127,9 @@ async def transcribe(
             wav_path = temp_path
         else:
             wav_path = _convert_to_wav(temp_path, log_callback)
-            # Clean up original file after conversion
+            _temp_registry.add(wav_path)
             temp_path.unlink()
+            _temp_registry.discard(temp_path)
 
         result = service.transcribe(
             audio_path=wav_path,
@@ -96,6 +148,8 @@ async def transcribe(
                     path.unlink()
                 except OSError:
                     pass
+            if path:
+                _temp_registry.discard(path)
 
     payload = {
         "transcript": result.transcript_text,

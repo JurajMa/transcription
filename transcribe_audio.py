@@ -28,6 +28,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip writing transcript.txt and only print status/logs",
     )
+    parser.add_argument(
+        "--keep-chunks",
+        action="store_true",
+        help="Keep intermediate audio chunk files after transcription (default: delete them)",
+    )
     return parser.parse_args()
 
 
@@ -55,6 +60,7 @@ def main() -> None:
         api_key=api_key,
         save_transcript=not args.no_save,
         transcript_path=args.output,
+        cleanup_chunks=not args.keep_chunks,
         log_callback=log_printer,
     )
 
