@@ -50,7 +50,7 @@ class TranscriptionService:
         self,
         *,
         model: str = "gpt-4o-transcribe",
-        response_format: str = "verbose_json",
+        response_format: str = "json",
         max_chunk_secs: float = 90.0,
         chunk_overlap_secs: float = 5.0,
         max_chunk_bytes: int = 24 * 1024 * 1024,
@@ -220,34 +220,60 @@ class TranscriptionService:
         log(f"Split into {len(chunks)} chunk(s).")
         return chunks
 
+    def _pad_with_silence(self, input_path: Path, output_path: Path, pad_secs: float = 1.0) -> None:
+        """Add silence padding to both ends of a WAV file to protect edge speech."""
+        with contextlib.closing(wave.open(str(input_path), "rb")) as wf:
+            nch = wf.getnchannels()
+            sw = wf.getsampwidth()
+            sr = wf.getframerate()
+            audio_frames = wf.readframes(wf.getnframes())
+
+        silence_frames = b'\x00' * int(pad_secs * sr * nch * sw)
+
+        with contextlib.closing(wave.open(str(output_path), "wb")) as out:
+            out.setnchannels(nch)
+            out.setsampwidth(sw)
+            out.setframerate(sr)
+            out.writeframes(silence_frames + audio_frames + silence_frames)
+
     def _transcribe_file(self, client: OpenAI, path: Path, log: LogFn, *, prompt: str = "") -> str:
+        # Create a silence-padded version to prevent edge truncation
+        padded_path = path.with_name(path.stem + "_padded.wav")
+        try:
+            self._pad_with_silence(path, padded_path)
+            target_path = padded_path
+        except Exception as pad_exc:
+            # If padding fails for any reason, fall back to the original file
+            log(f"[warn] Silence padding failed ({pad_exc}); using original file.")
+            target_path = path
+            padded_path = None
+
         last_error: Optional[Exception] = None
-        for attempt in range(1, self.retry_max + 1):
-            try:
-                with open(path, "rb") as fh:
-                    response = client.audio.transcriptions.create(
-                        model=self.model,
-                        file=fh,
-                        response_format=self.response_format,
-                        prompt=prompt,
+        try:
+            for attempt in range(1, self.retry_max + 1):
+                try:
+                    with open(target_path, "rb") as fh:
+                        response = client.audio.transcriptions.create(
+                            model=self.model,
+                            file=fh,
+                            response_format=self.response_format,
+                            prompt=prompt,
+                        )
+                    text = response.text if hasattr(response, "text") else str(response)
+                    return text
+                except Exception as exc:  # noqa: BLE001
+                    last_error = exc
+                    if attempt >= self.retry_max:
+                        raise
+                    sleep_seconds = self.retry_backoff ** attempt
+                    log(
+                        f"[warn] {type(exc).__name__}: {exc}. Retrying in {sleep_seconds:.1f}s"
                     )
-                text = response.text if hasattr(response, "text") else str(response)
-                # When using verbose_json, reconstruct full text from segments to avoid truncation
-                if hasattr(response, "segments") and response.segments:
-                    segments = response.segments
-                    text = " ".join(
-                        seg.text.strip() if hasattr(seg, "text") else seg["text"].strip()
-                        for seg in segments
-                    )
-                return text
-            except Exception as exc:  # noqa: BLE001
-                last_error = exc
-                if attempt >= self.retry_max:
-                    raise
-                sleep_seconds = self.retry_backoff ** attempt
-                log(
-                    f"[warn] {type(exc).__name__}: {exc}. Retrying in {sleep_seconds:.1f}s"
-                )
-                time.sleep(sleep_seconds)
-        assert last_error is not None  # pragma: no cover
-        raise last_error
+                    time.sleep(sleep_seconds)
+            assert last_error is not None  # pragma: no cover
+            raise last_error
+        finally:
+            # Clean up the padded temp file
+            if padded_path is not None:
+                with contextlib.suppress(OSError):
+                    padded_path.unlink()
