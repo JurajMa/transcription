@@ -10,7 +10,6 @@ const statusLog = document.getElementById("statusLog");
 const transcriptSection = document.getElementById("transcriptSection");
 const transcriptOutput = document.getElementById("transcriptOutput");
 const recordButton = document.getElementById("recordButton");
-const recordBtnLabel = document.getElementById("recordBtnLabel");
 const recordTimer = document.getElementById("recordTimer");
 const recordingIndicator = document.getElementById("recordingIndicator");
 const copyButton = document.getElementById("copyButton");
