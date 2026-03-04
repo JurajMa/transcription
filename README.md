@@ -4,7 +4,7 @@
 
 Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Paste your OpenAI API key, press record or drop in your audio file, and receive an accurate transcript in seconds. The app **does not store your audio or your API key** — audio is sent directly to the OpenAI API for processing and all temporary files are deleted immediately afterwards.
 
-![Transcription Studio UI](https://github.com/user-attachments/assets/2164301a-2d34-4355-893c-046125333039)
+![Transcription Studio UI](static/screenshot.png)
 
 ## Why use this?
 
