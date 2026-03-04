@@ -13,7 +13,7 @@ from openai import OpenAI
 LogFn = Callable[[str], None]
 
 # Number of characters from the previous chunk's transcript used as prompt context
-_PROMPT_CONTEXT_CHARS = 200
+_PROMPT_CONTEXT_CHARS = 500
 
 
 def human_time(seconds: float) -> str:
@@ -22,14 +22,14 @@ def human_time(seconds: float) -> str:
     return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
 
-def _dedup_overlap(prev: str, curr: str, tail_chars: int = 200, head_chars: int = 500) -> str:
+def _dedup_overlap(prev: str, curr: str, tail_chars: int = 300, head_chars: int = 600, min_match: int = 20) -> str:
     """Trim duplicated overlap text between two consecutive chunks."""
     if not prev:
         return curr
     prev_tail = prev[-tail_chars:]
     curr_head = curr[:head_chars]
     upto = min(len(prev_tail), len(curr_head))
-    for size in range(upto, 0, -1):
+    for size in range(upto, min_match - 1, -1):
         if prev_tail[-size:] == curr_head[:size]:
             return curr[size:]
     return curr
@@ -50,9 +50,9 @@ class TranscriptionService:
         self,
         *,
         model: str = "gpt-4o-transcribe",
-        response_format: str = "json",
+        response_format: str = "verbose_json",
         max_chunk_secs: float = 90.0,
-        chunk_overlap_secs: float = 1.0,
+        chunk_overlap_secs: float = 5.0,
         max_chunk_bytes: int = 24 * 1024 * 1024,
         retry_max: int = 3,
         retry_backoff: float = 2.0,
@@ -232,6 +232,13 @@ class TranscriptionService:
                         prompt=prompt,
                     )
                 text = response.text if hasattr(response, "text") else str(response)
+                # When using verbose_json, reconstruct full text from segments to avoid truncation
+                if hasattr(response, "segments") and response.segments:
+                    segments = response.segments
+                    text = " ".join(
+                        seg.text.strip() if hasattr(seg, "text") else seg["text"].strip()
+                        for seg in segments
+                    )
                 return text
             except Exception as exc:  # noqa: BLE001
                 last_error = exc
