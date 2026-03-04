@@ -100,3 +100,97 @@ CLI options:
 ## License
 
 © Juraj Mavračić 2025
+
+---
+
+## Desktop Packaging
+
+Transcription Studio can be packaged as a standalone desktop application for **Windows** and **macOS**. The desktop app opens in a native OS window (not a browser) and includes all dependencies—users don't need Python, pip, or a terminal.
+
+### Prerequisites
+
+#### 1. Install build dependencies
+
+```bash
+pip install -r requirements-build.txt
+```
+
+#### 2. Download ffmpeg
+
+You need a **static ffmpeg build** to bundle with the app:
+
+- **Windows**: Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html) (get the "essentials" build)
+  - Extract `ffmpeg.exe` and place it in the project root directory
+- **macOS**: Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html) (get the static build)
+  - Extract the `ffmpeg` binary and place it in the project root directory
+
+#### 3. Uncomment the ffmpeg line in the spec file
+
+Before building, edit the appropriate `.spec` file (`build_windows.spec` or `build_mac.spec`) and **uncomment** the ffmpeg binary line:
+
+```python
+# In build_windows.spec:
+binaries=[
+    ('ffmpeg.exe', '.'),  # <-- Uncomment this line
+],
+
+# In build_mac.spec:
+binaries=[
+    ('ffmpeg', '.'),  # <-- Uncomment this line
+],
+```
+
+### Building
+
+#### Option 1: Use the build script (recommended)
+
+```bash
+python scripts/build.py
+```
+
+The script will:
+- Detect your OS (Windows or macOS)
+- Check that ffmpeg and PyInstaller are available
+- Run the appropriate PyInstaller spec file
+- Print the output location
+
+#### Option 2: Run PyInstaller directly
+
+**Windows:**
+```bash
+pyinstaller build_windows.spec
+```
+
+**macOS:**
+```bash
+pyinstaller build_mac.spec
+```
+
+### Output
+
+After building, you'll find the packaged app in:
+
+```
+dist/TranscriptionStudio/
+```
+
+- **Windows**: `dist/TranscriptionStudio/TranscriptionStudio.exe` — double-click to run
+- **macOS**: `dist/TranscriptionStudio.app` — double-click to run
+
+You can distribute the entire `dist/TranscriptionStudio/` folder to users. They can run the app without installing Python or any other dependencies.
+
+### Important Notes
+
+- **Cross-compilation is not supported**: You must build ON Windows for Windows, and ON macOS for macOS
+- **macOS Gatekeeper warning**: Users will see a security warning unless you code-sign the app with an Apple Developer certificate
+  - To bypass for testing: Right-click the app → "Open" → click "Open" in the dialog
+  - For distribution, you should sign the app: `codesign -s "Developer ID Application: Your Name" TranscriptionStudio.app`
+- **Windows antivirus**: Some antivirus software may flag the `.exe` as suspicious (false positive)
+  - This is common with PyInstaller apps—consider code-signing the executable
+- **App size**: The bundled app will be ~100-200 MB due to Python runtime, dependencies, and ffmpeg
+
+### Troubleshooting
+
+- **"ffmpeg not found" error**: Make sure you downloaded the ffmpeg binary, placed it in the project root, and uncommented the line in the `.spec` file
+- **Import errors**: Make sure all dependencies are installed (`pip install -r requirements.txt`)
+- **Build fails on macOS**: You may need to install Xcode Command Line Tools (`xcode-select --install`)
