@@ -246,7 +246,7 @@ recordButton.addEventListener("click", async () => {
       }
     });
 
-    mediaRecorder.start();
+    mediaRecorder.start(1000);
     setRecording(true);
     setStatus("Recording… click Stop when done.", { append: false });
 
