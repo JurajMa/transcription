@@ -126,13 +126,12 @@ class TranscriptionService:
                 if previous_text:
                     chunk_text = _dedup_overlap(previous_text, chunk_text)
                 previous_text = chunk_text
-                header = f"\n--- [Chunk {index}/{total_chunks}] {chunk_path.name} ---\n"
-                transcript_parts.append(header + chunk_text + "\n")
+                transcript_parts.append(chunk_text)
                 if cleanup_chunks:
                     with contextlib.suppress(OSError):
                         chunk_path.unlink()
 
-            transcript_text = "".join(transcript_parts) if transcript_parts else ""
+            transcript_text = "\n\n".join(transcript_parts) if transcript_parts else ""
 
             result_path: Optional[Path] = None
             if save_transcript:
