@@ -13,6 +13,7 @@ const recordButton = document.getElementById("recordButton");
 const stopButton = document.getElementById("stopButton");
 const recordTimer = document.getElementById("recordTimer");
 const recordingIndicator = document.getElementById("recordingIndicator");
+const copyButton = document.getElementById("copyButton");
 
 let selectedFile = null;
 let transcriptText = "";
@@ -197,6 +198,26 @@ saveButton.addEventListener("click", () => {
   anchor.click();
   document.body.removeChild(anchor);
   URL.revokeObjectURL(anchor.href);
+});
+
+copyButton.addEventListener("click", () => {
+  if (!transcriptText) return;
+  navigator.clipboard.writeText(transcriptText).then(() => {
+    const original = copyButton.textContent;
+    copyButton.textContent = "✅ Copied!";
+    setTimeout(() => { copyButton.textContent = original; }, 1500);
+  }).catch(() => {
+    const range = document.createRange();
+    range.selectNodeContents(transcriptOutput);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+    const original = copyButton.textContent;
+    copyButton.textContent = "✅ Copied!";
+    setTimeout(() => { copyButton.textContent = original; }, 1500);
+  });
 });
 
 const formatTime = (seconds) => {

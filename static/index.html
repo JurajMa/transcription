@@ -20,46 +20,54 @@
           <h1>Transcription Studio</h1>
           <p>Upload a WAV file, provide your OpenAI key, and let the assistant handle chunked transcription.</p>
         </div>
-  <div class="badge">© Juraj Mavračić 2025</div>
+        <div class="api-key-header">
+          <label class="field-label" for="apiKeyInput">OpenAI API key</label>
+          <div class="field-group">
+            <input
+              id="apiKeyInput"
+              type="password"
+              autocomplete="off"
+              placeholder="paste your OPENAI_API_KEY here"
+            />
+            <button id="toggleKey" type="button" class="ghost">Show</button>
+          </div>
+          <p class="hint">Key is used only for this session and never stored.</p>
+        </div>
       </header>
 
-      <section class="panel glass">
-        <label class="field-label" for="apiKeyInput">OpenAI API key</label>
-        <div class="field-group">
-          <input
-            id="apiKeyInput"
-            type="password"
-            autocomplete="off"
-            placeholder="paste your OPENAI_API_KEY here"
-          />
-          <button id="toggleKey" type="button" class="ghost">Show</button>
-        </div>
-        <p class="hint">Key is used only for this session and never stored.</p>
-      </section>
+      <div class="action-row">
+        <section class="panel glass record-panel">
+          <p class="field-label">Record directly</p>
+          <div class="record-controls">
+            <button id="recordButton" type="button" class="primary record-btn">🎙️ Record</button>
+            <button id="stopButton" type="button" class="secondary" disabled>⏹️ Stop</button>
+            <span id="recordTimer" class="record-timer" hidden>00:00</span>
+            <span id="recordingIndicator" class="recording-indicator" hidden></span>
+          </div>
+        </section>
 
-      <section id="dropZone" class="panel glass drop-zone">
-        <input id="fileInput" type="file" accept=".wav,.m4a,.mp3,.mp4,.aac,.flac,.ogg,.webm" hidden />
-        <div class="drop-content">
-          <p class="drop-title">Drag &amp; drop your audio</p>
-          <p class="drop-subtitle">WAV, M4A, MP3, AAC, FLAC, OGG, WEBM supported</p>
-          <button id="uploadButton" type="button" class="primary">Browse file</button>
-          <p id="fileName" class="file-name">No file selected</p>
-        </div>
-      </section>
+        <section class="panel glass controls">
+          <button id="transcribeButton" class="primary" disabled>Start transcription</button>
+          <button id="saveButton" class="secondary" disabled>Save transcript</button>
+        </section>
 
-      <section class="panel glass record-panel">
-        <p class="field-label">Or record directly</p>
-        <div class="record-controls">
-          <button id="recordButton" type="button" class="primary record-btn">🎙️ Record</button>
-          <button id="stopButton" type="button" class="secondary" disabled>⏹️ Stop</button>
-          <span id="recordTimer" class="record-timer" hidden>00:00</span>
-          <span id="recordingIndicator" class="recording-indicator" hidden></span>
-        </div>
-      </section>
+        <section id="dropZone" class="panel glass drop-zone">
+          <input id="fileInput" type="file" accept=".wav,.m4a,.mp3,.mp4,.aac,.flac,.ogg,.webm" hidden />
+          <div class="drop-content">
+            <p class="drop-title">Drag &amp; drop your audio</p>
+            <p class="drop-subtitle">WAV, M4A, MP3, AAC, FLAC, OGG, WEBM supported</p>
+            <button id="uploadButton" type="button" class="primary">Browse file</button>
+            <p id="fileName" class="file-name">No file selected</p>
+          </div>
+        </section>
+      </div>
 
-      <section class="panel glass controls">
-        <button id="transcribeButton" class="primary" disabled>Start transcription</button>
-        <button id="saveButton" class="secondary" disabled>Save transcript</button>
+      <section id="transcriptSection" class="panel glass transcript" hidden>
+        <div class="transcript-header">
+          <h2>Transcript</h2>
+          <button id="copyButton" type="button" class="ghost copy-btn" title="Copy to clipboard">📋 Copy</button>
+        </div>
+        <pre id="transcriptOutput"></pre>
       </section>
 
       <section class="panel glass status-panel">
@@ -69,10 +77,7 @@
         </div>
       </section>
 
-      <section id="transcriptSection" class="panel glass transcript" hidden>
-        <h2>Transcript</h2>
-        <pre id="transcriptOutput"></pre>
-      </section>
+      <footer class="copyright">© Juraj Mavračić 2025</footer>
     </main>
     <script type="module" src="/static/app.js"></script>
   </body>
