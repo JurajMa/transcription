@@ -14,6 +14,11 @@ LogFn = Callable[[str], None]
 
 # Number of characters from the previous chunk's transcript used as prompt context
 _PROMPT_CONTEXT_CHARS = 500
+_TRANSCRIPTION_PROMPT = (
+    "Only transcribe spoken words; exclude all non-verbal and background noises. "
+    "Do NOT omit, summarize, or clean up anything related to spoken words. "
+    "Output every word as spoken. Do NOT truncate or leave out anything in the transcript, that is spoken."
+)
 
 
 def human_time(seconds: float) -> str:
@@ -115,7 +120,8 @@ class TranscriptionService:
 
             for index, chunk_path in enumerate(chunk_paths, start=1):
                 log(f"Transcribing chunk {index}/{total_chunks}: {chunk_path.name}")
-                prompt = previous_text[-_PROMPT_CONTEXT_CHARS:] if previous_text else ""
+                context = previous_text[-_PROMPT_CONTEXT_CHARS:] if previous_text else ""
+                prompt = f"{_TRANSCRIPTION_PROMPT} {context}".strip() if context else _TRANSCRIPTION_PROMPT
                 chunk_text = self._transcribe_file(client, chunk_path, log, prompt=prompt).strip()
                 if previous_text:
                     chunk_text = _dedup_overlap(previous_text, chunk_text)
