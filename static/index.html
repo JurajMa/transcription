@@ -18,7 +18,7 @@
       <header class="header glass">
         <div>
           <h1>Transcription Studio</h1>
-          <p>Upload a WAV file, provide your OpenAI key, and let the assistant handle chunked transcription.</p>
+          <p>Provide your OpenAI key and let the assistant handle chunked transcription.</p>
         </div>
         <div class="api-key-header">
           <label class="field-label" for="apiKeyInput">OpenAI API key</label>
@@ -29,7 +29,10 @@
               autocomplete="off"
               placeholder="paste your OPENAI_API_KEY here"
             />
-            <button id="toggleKey" type="button" class="ghost">Show</button>
+            <button id="toggleKey" type="button" class="ghost">
+              <svg id="toggleKeyIcon" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Show
+            </button>
           </div>
           <p class="hint">Key is used only for this session and never stored.</p>
         </div>
@@ -39,16 +42,28 @@
         <section class="panel glass record-panel">
           <p class="field-label">Record directly</p>
           <div class="record-controls">
-            <button id="recordButton" type="button" class="primary record-btn">🎙️ Record</button>
-            <button id="stopButton" type="button" class="secondary" disabled>⏹️ Stop</button>
+            <button id="recordButton" type="button" class="primary record-btn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+              <span id="recordBtnLabel">Record</span>
+            </button>
             <span id="recordTimer" class="record-timer" hidden>00:00</span>
             <span id="recordingIndicator" class="recording-indicator" hidden></span>
           </div>
+          <button id="copyButton" type="button" class="ghost copy-btn" title="Copy transcript to clipboard" hidden>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy transcript
+          </button>
         </section>
 
         <section class="panel glass controls">
-          <button id="transcribeButton" class="primary" disabled>Start transcription</button>
-          <button id="saveButton" class="secondary" disabled>Save transcript</button>
+          <button id="transcribeButton" class="primary" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Start transcription
+          </button>
+          <button id="saveButton" class="secondary" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save transcript
+          </button>
         </section>
 
         <section id="dropZone" class="panel glass drop-zone">
@@ -56,7 +71,10 @@
           <div class="drop-content">
             <p class="drop-title">Drag &amp; drop your audio</p>
             <p class="drop-subtitle">WAV, M4A, MP3, AAC, FLAC, OGG, WEBM supported</p>
-            <button id="uploadButton" type="button" class="primary">Browse file</button>
+            <button id="uploadButton" type="button" class="primary">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Browse file
+            </button>
             <p id="fileName" class="file-name">No file selected</p>
           </div>
         </section>
@@ -65,7 +83,6 @@
       <section id="transcriptSection" class="panel glass transcript" hidden>
         <div class="transcript-header">
           <h2>Transcript</h2>
-          <button id="copyButton" type="button" class="ghost copy-btn" title="Copy to clipboard">📋 Copy</button>
         </div>
         <pre id="transcriptOutput"></pre>
       </section>
