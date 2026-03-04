@@ -10,7 +10,7 @@ const statusLog = document.getElementById("statusLog");
 const transcriptSection = document.getElementById("transcriptSection");
 const transcriptOutput = document.getElementById("transcriptOutput");
 const recordButton = document.getElementById("recordButton");
-const stopButton = document.getElementById("stopButton");
+const recordBtnLabel = document.getElementById("recordBtnLabel");
 const recordTimer = document.getElementById("recordTimer");
 const recordingIndicator = document.getElementById("recordingIndicator");
 const copyButton = document.getElementById("copyButton");
@@ -27,6 +27,7 @@ const updateButtons = () => {
   const hasKey = Boolean(apiKeyInput.value.trim());
   transcribeButton.disabled = !(hasFile && hasKey);
   saveButton.disabled = transcriptText.length === 0;
+  copyButton.hidden = transcriptText.length === 0;
 };
 
 const resetTranscript = () => {
@@ -34,6 +35,7 @@ const resetTranscript = () => {
   transcriptOutput.textContent = "";
   transcriptSection.hidden = true;
   saveButton.disabled = true;
+  copyButton.hidden = true;
 };
 
 const setStatus = (messages, { append = false } = {}) => {
@@ -108,7 +110,9 @@ apiKeyInput.addEventListener("input", () => {
 toggleKey.addEventListener("click", () => {
   const isHidden = apiKeyInput.type === "password";
   apiKeyInput.type = isHidden ? "text" : "password";
-  toggleKey.textContent = isHidden ? "Hide" : "Show";
+  const eyeOpen = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeClosed = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  toggleKey.innerHTML = (isHidden ? eyeClosed : eyeOpen) + (isHidden ? " Hide" : " Show");
 });
 
 transcribeButton.addEventListener("click", async () => {
@@ -202,10 +206,11 @@ saveButton.addEventListener("click", () => {
 
 copyButton.addEventListener("click", () => {
   if (!transcriptText) return;
+  const copyIconSVG = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const originalHTML = copyIconSVG + " Copy transcript";
   navigator.clipboard.writeText(transcriptText).then(() => {
-    const original = copyButton.textContent;
-    copyButton.textContent = "✅ Copied!";
-    setTimeout(() => { copyButton.textContent = original; }, 1500);
+    copyButton.innerHTML = "✅ Copied!";
+    setTimeout(() => { copyButton.innerHTML = originalHTML; }, 1500);
   }).catch(() => {
     const range = document.createRange();
     range.selectNodeContents(transcriptOutput);
@@ -214,9 +219,8 @@ copyButton.addEventListener("click", () => {
     sel.addRange(range);
     document.execCommand("copy");
     sel.removeAllRanges();
-    const original = copyButton.textContent;
-    copyButton.textContent = "✅ Copied!";
-    setTimeout(() => { copyButton.textContent = original; }, 1500);
+    copyButton.innerHTML = "✅ Copied!";
+    setTimeout(() => { copyButton.innerHTML = originalHTML; }, 1500);
   });
 });
 
@@ -226,17 +230,38 @@ const formatTime = (seconds) => {
   return `${m}:${s}`;
 };
 
-const setRecording = (isRecording) => {
-  recordButton.disabled = isRecording;
-  stopButton.disabled = !isRecording;
-  uploadButton.disabled = isRecording;
-  transcribeButton.disabled = isRecording || !(selectedFile && apiKeyInput.value.trim());
-  recordTimer.hidden = !isRecording;
-  recordingIndicator.hidden = !isRecording;
-  dropZone.classList.toggle("recording", isRecording);
+const micIconSVG = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>';
+const stopIconSVG = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+
+let isRecording = false;
+
+const setRecording = (recording) => {
+  isRecording = recording;
+  uploadButton.disabled = recording;
+  transcribeButton.disabled = recording || !(selectedFile && apiKeyInput.value.trim());
+  recordTimer.hidden = !recording;
+  recordingIndicator.hidden = !recording;
+  dropZone.classList.toggle("recording", recording);
+
+  if (recording) {
+    recordButton.innerHTML = stopIconSVG + '<span id="recordBtnLabel">Stop</span>';
+    recordButton.classList.add("recording-active");
+  } else {
+    recordButton.innerHTML = micIconSVG + '<span id="recordBtnLabel">Record</span>';
+    recordButton.classList.remove("recording-active");
+  }
 };
 
 recordButton.addEventListener("click", async () => {
+  if (isRecording) {
+    // Stop recording
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    return;
+  }
+
+  // Start recording
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
@@ -277,12 +302,6 @@ recordButton.addEventListener("click", async () => {
     }, 1000);
   } catch (err) {
     setStatus(`Microphone error: ${err.message}`, { append: false });
-  }
-});
-
-stopButton.addEventListener("click", () => {
-  if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop();
   }
 });
 
