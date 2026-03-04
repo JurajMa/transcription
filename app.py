@@ -4,6 +4,7 @@ import atexit
 import logging
 import shutil
 import signal
+import subprocess
 import sys
 import tempfile
 import types
@@ -75,23 +76,34 @@ async def index() -> FileResponse:
 
 
 def _convert_to_wav(input_path: Path, log_callback) -> Path:
-    """Convert audio file to 16kHz mono WAV format using pydub."""
+    """Convert audio file to 16kHz mono WAV format using ffmpeg directly."""
     log_callback(f"Converting {input_path.suffix} to WAV format...")
-    
-    # Load audio with pydub (supports many formats via ffmpeg)
-    audio = AudioSegment.from_file(str(input_path))
-    
-    # Convert to mono and set sample rate to 16kHz
-    audio = audio.set_channels(1)
-    audio = audio.set_frame_rate(16000)
-    
-    # Create output path with .wav extension
+
     wav_path = input_path.with_suffix('.wav')
-    
-    # Export as WAV
-    audio.export(str(wav_path), format="wav")
-    log_callback(f"Converted to {wav_path.name} | {len(audio)}ms | 16kHz mono")
-    
+
+    result = subprocess.run(
+        [
+            "ffmpeg", "-y",
+            "-i", str(input_path),
+            "-ac", "1",
+            "-ar", "16000",
+            "-sample_fmt", "s16",
+            str(wav_path),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"ffmpeg conversion failed: {result.stderr}")
+
+    # Log the resulting duration for verification
+    try:
+        audio = AudioSegment.from_wav(str(wav_path))
+        log_callback(f"Converted to {wav_path.name} | {len(audio)}ms | 16kHz mono")
+    except Exception:  # noqa: BLE001
+        log_callback(f"Converted to {wav_path.name} | 16kHz mono")
+
     return wav_path
 
 
