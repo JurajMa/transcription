@@ -2,18 +2,18 @@
 
 **Record or upload audio and get a text transcript — powered by your own OpenAI API key.**
 
-Transcription Studio is a lightweight, self-hosted alternative to OpenAI's Whisper desktop app. Paste your API key, drop in an audio file (or record directly in the browser), and receive an accurate transcript in seconds. The app **does not store your audio or your API key** — audio is sent directly to the OpenAI API for processing and all temporary files are deleted immediately afterwards.
+Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Paste your OpenAI API key, press record or drop in your audio file, and receive an accurate transcript in seconds. The app **does not store your audio or your API key** — audio is sent directly to the OpenAI API for processing and all temporary files are deleted immediately afterwards.
 
 ![Transcription Studio UI](https://github.com/user-attachments/assets/2164301a-2d34-4355-893c-046125333039)
 
 ## Why use this?
 
-| | Transcription Studio | OpenAI Whisper (local) |
+| | Transcription Studio | Wispr Flow |
 |---|---|---|
-| **Setup** | `pip install` + your API key | Download & run large model weights |
-| **Hardware** | Any machine — processing happens via the API | Needs a capable GPU for real-time speeds |
-| **Accuracy** | Uses the latest `gpt-4o-transcribe` model | Depends on chosen model size |
-| **Privacy** | Audio sent to OpenAI API only; nothing stored locally | Fully local |
+| **Cost** | Pay-per-use via your own OpenAI API key | Monthly subscription |
+| **Setup** | `pip install` + API key, self-hosted | Download desktop app, create account |
+| **Privacy** | Audio sent to OpenAI API only; nothing stored locally | Audio processed by Wispr's servers |
+| **Flexibility** | Open-source, customisable, CLI + web UI | Closed-source desktop app |
 
 ## How it works
 
