@@ -51,8 +51,9 @@ def _wait_for_server(port: int, timeout: float = 10.0) -> bool:
 def _start_server(port: int) -> None:
     """Start the Uvicorn server in the current thread."""
     import uvicorn
+    from app import app as fastapi_app
     uvicorn.run(
-        "app:app",
+        fastapi_app,
         host="127.0.0.1",
         port=port,
         log_level="warning",
@@ -72,6 +73,7 @@ def main() -> None:
     ffmpeg_path = base_dir / ffmpeg_name
     if ffmpeg_path.exists():
         os.environ['FFMPEG_PATH'] = str(ffmpeg_path)
+        os.environ['PATH'] = str(ffmpeg_path.parent) + os.pathsep + os.environ.get('PATH', '')
 
     # Find an available port
     port = _find_free_port()

@@ -83,6 +83,7 @@ except (ValueError, OSError):
     pass
 
 app = FastAPI(title="Transcription Studio", version="1.0")
+AudioSegment.converter = _get_ffmpeg_path()
 app.mount("/static", StaticFiles(directory=_get_base_dir() / "static"), name="static")
 
 service = TranscriptionService()

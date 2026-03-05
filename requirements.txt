@@ -4,3 +4,4 @@ python-multipart>=0.0.9
 openai>=2.0.0
 pydub>=0.25.1
 pywebview>=5.0
+audioop-lts>=0.2.1

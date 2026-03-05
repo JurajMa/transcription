@@ -27,6 +27,10 @@ const updateButtons = () => {
   transcribeButton.disabled = !(hasFile && hasKey);
   saveButton.disabled = transcriptText.length === 0;
   copyButton.hidden = transcriptText.length === 0;
+  recordButton.disabled = !hasKey;
+  uploadButton.disabled = !hasKey;
+  apiKeyInput.classList.toggle("key-empty", !hasKey);
+  dropZone.classList.toggle("enabled", hasKey);
 };
 
 const resetTranscript = () => {
@@ -65,6 +69,10 @@ const setLoading = (isLoading) => {
 
 const selectFile = (file) => {
   if (!file) return;
+  if (!apiKeyInput.value.trim()) {
+    setStatus("Paste your OpenAI API key first.", { append: false });
+    return;
+  }
   const supportedFormats = ['.wav', '.m4a', '.mp3', '.mp4', '.aac', '.flac', '.ogg', '.webm'];
   const fileExt = file.name.toLowerCase().match(/\.[^.]+$/)?.[0];
   if (!fileExt || !supportedFormats.includes(fileExt)) {
@@ -79,7 +87,10 @@ const selectFile = (file) => {
   updateButtons();
 };
 
-uploadButton.addEventListener("click", () => fileInput.click());
+uploadButton.addEventListener("click", () => {
+  if (!apiKeyInput.value.trim()) return;
+  fileInput.click();
+});
 
 fileInput.addEventListener("change", (event) => {
   const [file] = event.target.files;
@@ -98,6 +109,10 @@ dropZone.addEventListener("dragleave", () => {
 dropZone.addEventListener("drop", (event) => {
   event.preventDefault();
   dropZone.classList.remove("dragging");
+  if (!apiKeyInput.value.trim()) {
+    setStatus("Paste your OpenAI API key first.", { append: false });
+    return;
+  }
   const [file] = event.dataTransfer.files;
   selectFile(file);
 });

@@ -10,13 +10,14 @@ a = Analysis(
         # IMPORTANT: Before building, download ffmpeg.exe from https://ffmpeg.org/download.html
         # and place it in the project root directory.
         # Uncomment the line below once ffmpeg.exe is in place:
-        # ('ffmpeg.exe', '.'),
+        ('ffmpeg.exe', '.'),
     ],
     datas=[
         ('static', 'static'),
         ('transcription', 'transcription'),
     ],
     hiddenimports=[
+        'audioop',
         'uvicorn.logging',
         'uvicorn.loops',
         'uvicorn.loops.auto',
@@ -46,6 +47,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='TranscriptionStudio',
+    icon='icon.ico', 
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
