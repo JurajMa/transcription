@@ -12,7 +12,7 @@ from transcription import TranscriptionService
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Split a WAV into 90 second chunks, send them to OpenAI for transcription, "
+            "Split a WAV into 270 second chunks, send them to OpenAI for transcription, "
             "and combine the results into a transcript.txt file."
         )
     )
