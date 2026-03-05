@@ -1,19 +1,32 @@
 # Transcription Studio
 
-**Record or upload audio and get a text transcript — powered by your own OpenAI API key.**
 
-Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Paste your OpenAI API key, press record or drop in your audio file, and receive an accurate transcript in seconds. The app **does not store your audio or your API key** — audio is sent directly to the OpenAI API for processing and all temporary files are deleted immediately afterwards.
+
+**Record or upload audio and get a text transcript — powered by your own OpenAI API key.** 
+
+
+## ⬇️ Download
+
+### [Download Transcription Studio for Windows — v1.0.0](https://github.com/JurajMa/transcription/releases/download/v1.0.0/TranscriptionStudio_Setup_1.0.0.exe)
+
+One-click installer · Windows 10+ · No Python required. · You only pay OpenAI per use, this app is free
+
+
+
+
 
 ![Transcription Studio UI](static/screenshot.png)
 
 > **🔑 Bring Your Own Key (BYOK)** — You need your own OpenAI API key to use this app. Get one at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). This means you:
 > - Always use the **latest state-of-the-art transcription models**
-> - **Control your own usage and costs** directly through OpenAI, **this app is free**, you only pay OpenAI for transcription
+> - **Control your own usage and costs** directly through OpenAI. **This app is free**, you only pay OpenAI for transcription
 > - Pay **far less** than with subscription-based transcription services
 >
 > ⚠️ **Always [set usage limits](https://platform.openai.com/settings/organization/limits) on your API key. Your API key is sent directly to OpenAI and not stored anywhere. Paste at your own risk — never share this app with untrusted users.**
 
 ## Why use this?
+
+Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Paste your OpenAI API key, press record or drop in your audio file, and receive an accurate transcript in seconds. The app **does not store your audio or your API key** — audio is sent directly to the OpenAI API for processing and all temporary files are deleted immediately afterwards.
 
 | | Transcription Studio | Wispr Flow |
 |---|---|---|
