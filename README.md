@@ -8,7 +8,7 @@ Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Pa
 
 > **🔑 Bring Your Own Key (BYOK)** — You need your own OpenAI API key to use this app. Get one at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). This means you:
 > - Always use the **latest state-of-the-art transcription models**
-> - **Control your own usage and costs** directly through OpenAI
+> - **Control your own usage and costs** directly through OpenAI, **this app is free**, you only pay OpenAI for transcription
 > - Pay **far less** than with subscription-based transcription services
 >
 > ⚠️ **Always [set usage limits](https://platform.openai.com/settings/organization/limits) on your API key. Your API key is sent directly to OpenAI and not stored anywhere. Paste at your own risk — never share this app with untrusted users.**
@@ -17,7 +17,7 @@ Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Pa
 
 | | Transcription Studio | Wispr Flow |
 |---|---|---|
-| **Cost** | Pay-per-use via your own OpenAI API key | Monthly subscription |
+| **Cost** | This app is free, Pay-per-use for the model directly via your own OpenAI API key (🥜) | Monthly subscription |
 | **Setup** | One-click install + API key | Download desktop app, create account |
 | **Privacy** | Audio sent to OpenAI API only; nothing stored locally | Audio processed by Wispr's servers |
 | **Flexibility** | Open-source, customisable, CLI + web UI | Closed-source desktop app |
@@ -25,6 +25,10 @@ Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Pa
 ## Installation
 
 The easiest way to get started is to download the Windows installer from the [Releases](../../releases) page on GitHub. Run the installer, launch the app, paste your OpenAI API key, and start transcribing — no Python or terminal required.
+
+> ⚠️ **Windows SmartScreen warning:** The installer is not code-signed, so Windows may show a warning saying the app is from an "unknown publisher". This is normal for independent software.
+>
+> **To install:** Click **"More info"** → then click **"Run anyway"**
 
 ## How it works
 

@@ -1,0 +1,43 @@
+TRANSCRIPTION STUDIO — DISCLAIMER AND TERMS OF USE
+
+© Juraj Mavračić 2025. All rights reserved.
+
+This software is proprietary. No part of this software may be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the author, except for personal, non-commercial use as made available through official releases.
+
+---
+
+DISCLAIMER
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THIS INCLUDES, WITHOUT LIMITATION, ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, LOSS OF PROFITS, BUSINESS INTERRUPTION, OR ANY FINANCIAL LOSSES.
+
+By installing and using this software, you acknowledge and agree that:
+
+- You are solely responsible for your OpenAI API key. The author is not responsible for any unauthorised access to, misuse of, or charges incurred on your API key, whether resulting from your own actions, third-party access, security breaches, or any other cause.
+
+- You are solely responsible for all costs incurred through the OpenAI API. The author has no control over and accepts no liability for API pricing, usage charges, or billing disputes.
+
+- You are solely responsible for the security of your system and network. The author makes no guarantees regarding the security of data in transit or at rest and is not liable for any data breaches, interceptions, or leaks.
+
+- You are solely responsible for compliance with all applicable laws, regulations, and third-party terms of service (including OpenAI's usage policies) in your jurisdiction.
+
+- Audio data and transcripts are processed at your own risk. The author is not responsible for the accuracy, completeness, or suitability of any transcription output.
+
+- The author does not provide any technical support, security guarantees, or uptime commitments for this software.
+
+Use of this software is entirely at your own risk.
+
+---
+
+PRIVACY & SECURITY
+
+- API key — entered in the app, sent over HTTPS to the OpenAI API, and discarded after the request. It is never written to disk or logged.
+
+- Audio data — uploaded audio is held in a temporary file only for the duration of processing. It is sent to the OpenAI API for transcription and then immediately deleted. The app does not retain, log, or transmit your audio anywhere else.
+
+- Transcripts — displayed in the app. Nothing is saved unless you explicitly save or copy the text.
+
+---
+
+IMPORTANT: This application requires your own OpenAI API key. You will be charged by OpenAI for API usage. Always set usage limits on your API key at https://platform.openai.com/settings/organization/limits
