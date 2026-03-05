@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import atexit
 import logging
+import os
 import shutil
 import signal
 import subprocess
@@ -26,6 +27,35 @@ logger = logging.getLogger(__name__)
 _temp_registry: set[Path] = set()
 
 
+def _get_base_dir() -> Path:
+    """Get the base directory for resources (frozen or dev mode)."""
+    # Check if an environment variable is set (from desktop.py)
+    if 'TRANSCRIPTION_BASE_DIR' in os.environ:
+        return Path(os.environ['TRANSCRIPTION_BASE_DIR'])
+    # Check if running as a PyInstaller bundle
+    if hasattr(sys, '_MEIPASS'):
+        return Path(sys._MEIPASS)
+    # Running in development mode
+    return Path(__file__).parent
+
+
+def _get_ffmpeg_path() -> str:
+    """Get the path to the ffmpeg binary."""
+    # First check if an environment variable is set (from desktop.py)
+    if 'FFMPEG_PATH' in os.environ:
+        return os.environ['FFMPEG_PATH']
+
+    # Check if ffmpeg is bundled with the app
+    base_dir = _get_base_dir()
+    ffmpeg_name = 'ffmpeg.exe' if sys.platform == 'win32' else 'ffmpeg'
+    ffmpeg_path = base_dir / ffmpeg_name
+    if ffmpeg_path.exists():
+        return str(ffmpeg_path)
+
+    # Fall back to system PATH (for dev mode)
+    return 'ffmpeg'
+
+
 def _cleanup_registered() -> None:
     """Delete all temp paths registered by this process."""
     for path in list(_temp_registry):
@@ -45,11 +75,16 @@ def _sigterm_handler(signum: int, frame: types.FrameType | None) -> None:
 
 
 atexit.register(_cleanup_registered)
-signal.signal(signal.SIGTERM, _sigterm_handler)
-signal.signal(signal.SIGINT, _sigterm_handler)
+try:
+    signal.signal(signal.SIGTERM, _sigterm_handler)
+    signal.signal(signal.SIGINT, _sigterm_handler)
+except (ValueError, OSError):
+    # Signal handlers may not work in some environments (e.g., Windows GUI mode)
+    pass
 
 app = FastAPI(title="Transcription Studio", version="1.0")
-app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+AudioSegment.converter = _get_ffmpeg_path()
+app.mount("/static", StaticFiles(directory=_get_base_dir() / "static"), name="static")
 
 service = TranscriptionService()
 
@@ -71,7 +106,7 @@ async def startup_cleanup() -> None:
 
 @app.get("/")
 async def index() -> FileResponse:
-    index_path = Path(__file__).parent / "static" / "index.html"
+    index_path = _get_base_dir() / "static" / "index.html"
     return FileResponse(index_path)
 
 
@@ -81,19 +116,26 @@ def _convert_to_wav(input_path: Path, log_callback) -> Path:
 
     wav_path = input_path.with_suffix('.wav')
 
-    result = subprocess.run(
-        [
-            "ffmpeg", "-y",
-            "-i", str(input_path),
-            "-ac", "1",
-            "-ar", "16000",
-            "-sample_fmt", "s16",
-            str(wav_path),
-        ],
-        capture_output=True,
-        text=True,
-        timeout=300,
-    )
+    # Prepare subprocess arguments
+    ffmpeg_cmd = [
+        _get_ffmpeg_path(), "-y",
+        "-i", str(input_path),
+        "-ac", "1",
+        "-ar", "16000",
+        "-sample_fmt", "s16",
+        str(wav_path),
+    ]
+
+    # On Windows in frozen mode, prevent console window flash
+    kwargs = {
+        'capture_output': True,
+        'text': True,
+        'timeout': 300,
+    }
+    if sys.platform == 'win32' and hasattr(sys, '_MEIPASS'):
+        kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+
+    result = subprocess.run(ffmpeg_cmd, **kwargs)
     if result.returncode != 0:
         raise RuntimeError(f"ffmpeg conversion failed: {result.stderr}")
 

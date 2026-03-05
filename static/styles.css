@@ -122,6 +122,21 @@ body {
   transition: border 160ms ease, background 160ms ease;
 }
 
+.field-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.field-group input.key-empty {
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+  animation: pulse-key 2s ease-in-out infinite;
+}
+
+@keyframes pulse-key {
+  0%, 100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+}
+
 .field-group input:focus {
   outline: none;
   border-color: rgba(160, 160, 160, 0.4);
@@ -214,6 +229,12 @@ button:not(:disabled):active {
 .drop-title {
   font-size: 1.35rem;
   font-weight: 600;
+  color: var(--text-muted);
+  transition: color 160ms ease;
+}
+
+.drop-zone.enabled .drop-title {
+  color: var(--text-primary);
 }
 
 .drop-subtitle {
@@ -409,6 +430,16 @@ button:not(:disabled):active {
   color: var(--text-muted);
   font-size: 0.82rem;
   padding: 1.5rem 0 0;
+}
+
+.copyright a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.copyright a:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
 }
 
 @media (max-width: 720px) {

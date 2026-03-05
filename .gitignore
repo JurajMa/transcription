@@ -60,3 +60,8 @@ Thumbs.db
 *.tmp
 *.temp
 ~*
+
+# PyInstaller build artifacts
+*.spec.bak
+ffmpeg
+ffmpeg.exe
