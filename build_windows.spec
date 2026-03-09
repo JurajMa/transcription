@@ -10,7 +10,7 @@ a = Analysis(
         # IMPORTANT: Before building, download ffmpeg.exe from https://ffmpeg.org/download.html
         # and place it in the project root directory.
         # Uncomment the line below once ffmpeg.exe is in place:
-        ('ffmpeg.exe', '.'),
+        # ('ffmpeg.exe', '.'),
     ],
     datas=[
         ('static', 'static'),

@@ -3,7 +3,7 @@
 ; Tailored for the PyInstaller build at dist\TranscriptionStudio\
 
 #define MyAppName "Transcription Studio"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Juraj Mavračić"
 #define MyAppURL "https://github.com/JurajMa/transcription"
 #define MyAppExeName "TranscriptionStudio.exe"
