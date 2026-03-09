@@ -15,6 +15,7 @@ a = Analysis(
     datas=[
         ('static', 'static'),
         ('transcription', 'transcription'),
+        ('icon.ico', '.'),
     ],
     hiddenimports=[
         'uvicorn.logging',
@@ -77,3 +78,4 @@ app = BUNDLE(
     icon=None,
     bundle_identifier='com.transcriptionstudio.app',
 )
+
