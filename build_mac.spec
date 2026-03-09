@@ -15,6 +15,7 @@ a = Analysis(
     datas=[
         ('static', 'static'),
         ('transcription', 'transcription'),
+        ('icon.ico', '.'),
     ],
     hiddenimports=[
         'uvicorn.logging',
@@ -27,6 +28,8 @@ a = Analysis(
         'uvicorn.protocols.websockets.auto',
         'uvicorn.lifespan',
         'uvicorn.lifespan.on',
+        'pystray',
+        'PIL',
     ],
     hookspath=[],
     hooksconfig={},
@@ -75,3 +78,4 @@ app = BUNDLE(
     icon=None,
     bundle_identifier='com.transcriptionstudio.app',
 )
+

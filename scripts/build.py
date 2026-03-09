@@ -50,13 +50,13 @@ def main() -> None:
     # Check that PyInstaller is installed
     try:
         subprocess.run(
-            ["pyinstaller", "--version"],
+            [sys.executable, "-m", "PyInstaller", "--version"],
             capture_output=True,
             check=True,
         )
     except (subprocess.CalledProcessError, FileNotFoundError):
         print("Error: PyInstaller is not installed.", file=sys.stderr)
-        print("Install it with: pip install -r requirements-build.txt", file=sys.stderr)
+        print("Install build deps with: python -m pip install -r requirements-build.txt", file=sys.stderr)
         sys.exit(1)
 
     # Run PyInstaller
@@ -64,7 +64,7 @@ def main() -> None:
     print(f"Using spec file: {spec_file}")
     try:
         subprocess.run(
-            ["pyinstaller", spec_file],
+            [sys.executable, "-m", "PyInstaller", spec_file],
             cwd=project_root,
             check=True,
         )
@@ -98,3 +98,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+

@@ -451,3 +451,94 @@ button:not(:disabled):active {
     min-width: 100%;
   }
 }
+
+.hotkey-panel {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hotkey-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.hotkey-toggle-label input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.hotkey-switch {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.hotkey-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 160ms ease;
+}
+
+
+.hotkey-toggle-label input:focus-visible + .hotkey-switch {
+  outline: 2px solid rgba(239, 68, 68, 0.95);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+.hotkey-toggle-label input:checked + .hotkey-switch {
+  background: rgba(239, 68, 68, 0.45);
+  border-color: rgba(239, 68, 68, 0.75);
+}
+
+.hotkey-toggle-label input:checked + .hotkey-switch::after {
+  transform: translateX(18px);
+}
+
+.hotkey-toggle-text {
+  line-height: 1;
+}
+
+.hotkey-hint {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.hotkey-panel.disabled {
+  opacity: 0.68;
+}
+
+.hotkey-panel.disabled .hotkey-toggle-label {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.hotkey-panel.disabled .hotkey-switch {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.hotkey-panel.disabled .hotkey-switch::after {
+  background: #9ca3af;
+}
+

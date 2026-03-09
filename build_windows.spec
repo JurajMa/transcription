@@ -10,11 +10,12 @@ a = Analysis(
         # IMPORTANT: Before building, download ffmpeg.exe from https://ffmpeg.org/download.html
         # and place it in the project root directory.
         # Uncomment the line below once ffmpeg.exe is in place:
-        # ('ffmpeg.exe', '.'),
+        ('ffmpeg.exe', '.'),
     ],
     datas=[
         ('static', 'static'),
         ('transcription', 'transcription'),
+        ('icon.ico', '.'),
     ],
     hiddenimports=[
         'audioop',
@@ -28,6 +29,8 @@ a = Analysis(
         'uvicorn.protocols.websockets.auto',
         'uvicorn.lifespan',
         'uvicorn.lifespan.on',
+        'pystray',
+        'PIL',
     ],
     hookspath=[],
     hooksconfig={},
@@ -70,3 +73,4 @@ coll = COLLECT(
     upx_exclude=[],
     name='TranscriptionStudio',
 )
+

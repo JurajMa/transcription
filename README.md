@@ -7,7 +7,7 @@
 
 ## ⬇️ Download
 
-### [Download Transcription Studio for Windows — v1.0.0](https://github.com/JurajMa/transcription/releases/download/v1.0.0/TranscriptionStudio_Setup_1.0.0.exe)
+### [Download Transcription Studio for Windows — v1.1.0](https://github.com/JurajMa/transcription/releases/download/v1.1.0/TranscriptionStudio_Setup_1.1.0.exe)
 
 One-click installer · Windows 10+ · No Python required. · You only pay OpenAI per use, this app is free
 
@@ -58,6 +58,13 @@ The easiest way to get started is to download the Windows installer from the [Re
 - 🗑️ **No audio storage** — temporary files are cleaned up immediately after transcription
 - ⚡ **Intelligent chunking** with overlap and deduplication for seamless long-form transcripts
 - 💾 **Copy or save** the transcript as a `.txt` file
+
+## Changelog
+
+### v1.1.0
+- Added Windows hotkey mode (`F4`) for start/stop recording while minimized to tray.
+- Added tray workflow and on-screen status indicator (recording, success, error).
+- Hotkey transcriptions now auto-copy to clipboard when processing completes.
 
 ## Privacy & security
 
@@ -155,92 +162,66 @@ CLI options:
 
 ## Desktop packaging
 
-Transcription Studio can be packaged as a standalone desktop application for **Windows** and **macOS**. The desktop app opens in a native OS window (not a browser) and includes all dependencies—users don't need Python, pip, or a terminal.
+Transcription Studio can be packaged as a standalone desktop application for **Windows** and **macOS**. The desktop app opens in a native OS window (not a browser) and includes all dependencies, so users do not need Python, pip, or a terminal.
+
+### Quick build (Windows PowerShell)
+
+Run these commands from the project root:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+.\.venv\Scripts\python.exe .\scripts\build.py
+```
+
+Build output:
+
+- `dist/TranscriptionStudio/TranscriptionStudio.exe`
 
 ### Prerequisites
 
-#### 1. Install build dependencies
+1. Install runtime dependencies:
 
 ```bash
-pip install -r requirements-build.txt
+python -m pip install -r requirements.txt
 ```
 
-#### 2. Download ffmpeg
+2. Install build dependencies:
 
-You need a **static ffmpeg build** to bundle with the app:
-
-- **Windows**: Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html) (get the "essentials" build)
-  - Extract `ffmpeg.exe` and place it in the project root directory
-- **macOS**: Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html) (get the static build)
-  - Extract the `ffmpeg` binary and place it in the project root directory
-
-#### 3. Uncomment the ffmpeg line in the spec file
-
-Before building, edit the appropriate `.spec` file (`build_windows.spec` or `build_mac.spec`) and **uncomment** the ffmpeg binary line:
-
-```python
-# In build_windows.spec:
-binaries=[
-    ('ffmpeg.exe', '.'),  # <-- Uncomment this line
-],
-
-# In build_mac.spec:
-binaries=[
-    ('ffmpeg', '.'),  # <-- Uncomment this line
-],
+```bash
+python -m pip install -r requirements-build.txt
 ```
 
-### Building
+3. Place ffmpeg in the project root:
 
-#### Option 1: Use the build script (recommended)
+- **Windows**: `ffmpeg.exe`
+- **macOS**: `ffmpeg`
+
+### Build commands
+
+Recommended:
 
 ```bash
 python scripts/build.py
 ```
 
-The script will:
-- Detect your OS (Windows or macOS)
-- Check that ffmpeg and PyInstaller are available
-- Run the appropriate PyInstaller spec file
-- Print the output location
+Direct PyInstaller (alternative):
 
-#### Option 2: Run PyInstaller directly
+- **Windows**: `python -m PyInstaller build_windows.spec`
+- **macOS**: `python -m PyInstaller build_mac.spec`
 
-**Windows:**
-```bash
-pyinstaller build_windows.spec
-```
+### Notes
 
-**macOS:**
-```bash
-pyinstaller build_mac.spec
-```
-
-### Output
-
-After building, you'll find the packaged app in:
-
-```
-dist/TranscriptionStudio/
-```
-
-- **Windows**: `dist/TranscriptionStudio/TranscriptionStudio.exe` — double-click to run
-- **macOS**: `dist/TranscriptionStudio.app` — double-click to run
-
-You can distribute the entire `dist/TranscriptionStudio/` folder to users. They can run the app without installing Python or any other dependencies.
-
-### Important Notes
-
-- **Cross-compilation is not supported**: You must build ON Windows for Windows, and ON macOS for macOS
-- **macOS Gatekeeper warning**: Users will see a security warning unless you code-sign the app with an Apple Developer certificate
-  - To bypass for testing: Right-click the app → "Open" → click "Open" in the dialog
-  - For distribution, you should sign the app: `codesign -s "Developer ID Application: Your Name" TranscriptionStudio.app`
-- **Windows antivirus**: Some antivirus software may flag the `.exe` as suspicious (false positive)
-  - This is common with PyInstaller apps—consider code-signing the executable
-- **App size**: The bundled app will be ~100-200 MB due to Python runtime, dependencies, and ffmpeg
+- The build helper now runs PyInstaller via the current Python interpreter (`python -m PyInstaller`), so activation is optional.
+- `build_windows.spec` already includes `ffmpeg.exe` and tray/hotkey dependencies.
+- `build_mac.spec` keeps ffmpeg optional by default; uncomment `('ffmpeg', '.')` if you want ffmpeg bundled in macOS builds.
+- Cross-compilation is not supported (build Windows on Windows, macOS on macOS).
 
 ### Troubleshooting
 
-- **"ffmpeg not found" error**: Make sure you downloaded the ffmpeg binary, placed it in the project root, and uncommented the line in the `.spec` file
-- **Import errors**: Make sure all dependencies are installed (`pip install -r requirements.txt`)
-- **Build fails on macOS**: You may need to install Xcode Command Line Tools (`xcode-select --install`)
+- **`PyInstaller is not installed`**: `python -m pip install -r requirements-build.txt`
+- **Missing imports at runtime**: reinstall deps with `python -m pip install -r requirements.txt`
+- **`ffmpeg not found`**: place the correct ffmpeg binary in the project root before building
+- **Build fails on macOS**: install Xcode Command Line Tools (`xcode-select --install`)
