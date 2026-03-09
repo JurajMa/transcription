@@ -49,6 +49,17 @@
             <span id="recordTimer" class="record-timer" hidden>00:00</span>
             <span id="recordingIndicator" class="recording-indicator" hidden></span>
           </div>
+          <div id="hotkeyPanel" class="hotkey-panel" hidden>
+            <label class="hotkey-toggle-label">
+              <input id="hotkeyToggle" type="checkbox" />
+              <span class="hotkey-switch" aria-hidden="true"></span>
+              <span class="hotkey-toggle-text">Hotkey mode [F4]</span>
+            </label>
+            <p class="hint hotkey-hint">
+              Minimize to tray, press F4 to start/stop recording, CTRL+V to paste
+            </p>
+          </div>
+
           <button id="copyButton" type="button" class="ghost copy-btn" title="Copy transcript to clipboard" hidden>
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copy transcript

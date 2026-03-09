@@ -27,6 +27,8 @@ a = Analysis(
         'uvicorn.protocols.websockets.auto',
         'uvicorn.lifespan',
         'uvicorn.lifespan.on',
+        'pystray',
+        'PIL',
     ],
     hookspath=[],
     hooksconfig={},

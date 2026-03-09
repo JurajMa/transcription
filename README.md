@@ -7,7 +7,7 @@
 
 ## ⬇️ Download
 
-### [Download Transcription Studio for Windows — v1.0.0](https://github.com/JurajMa/transcription/releases/download/v1.0.0/TranscriptionStudio_Setup_1.0.0.exe)
+### [Download Transcription Studio for Windows — v1.1.0](https://github.com/JurajMa/transcription/releases/download/v1.1.0/TranscriptionStudio_Setup_1.1.0.exe)
 
 One-click installer · Windows 10+ · No Python required. · You only pay OpenAI per use, this app is free
 
@@ -58,6 +58,13 @@ The easiest way to get started is to download the Windows installer from the [Re
 - 🗑️ **No audio storage** — temporary files are cleaned up immediately after transcription
 - ⚡ **Intelligent chunking** with overlap and deduplication for seamless long-form transcripts
 - 💾 **Copy or save** the transcript as a `.txt` file
+
+## Changelog
+
+### v1.1.0
+- Added Windows hotkey mode (`F4`) for start/stop recording while minimized to tray.
+- Added tray workflow and on-screen status indicator (recording, success, error).
+- Hotkey transcriptions now auto-copy to clipboard when processing completes.
 
 ## Privacy & security
 
