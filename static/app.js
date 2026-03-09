@@ -66,7 +66,7 @@ const updateButtons = () => {
   transcribeButton.disabled = lockUi || isRecording || !(hasFile && hasKey);
   saveButton.disabled = lockUi || transcriptText.length === 0;
   copyButton.hidden = transcriptText.length === 0;
-  recordButton.disabled = !hasKey || lockUi;
+  recordButton.disabled = isRecording ? lockUi : (!hasKey || lockUi);
   uploadButton.disabled = !hasKey || lockUi || isRecording;
   hotkeyToggle.disabled = !hasKey || lockUi || isRecording;
   apiKeyInput.disabled = lockUi;

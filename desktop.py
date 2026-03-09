@@ -2,7 +2,7 @@
 
 This module launches the FastAPI server in a background thread and opens
 an OS window using pywebview. In hotkey mode (Windows only), F4 works as
-a global push-to-talk toggle while minimized to tray.
+a global press-to-toggle recording hotkey while minimized to tray.
 """
 
 from __future__ import annotations
@@ -281,6 +281,9 @@ class DesktopController:
 
     WM_HOTKEY = 0x0312
     WM_QUIT = 0x0012
+    WM_APP = 0x8000
+    WM_ENABLE_HOTKEY = WM_APP + 1
+    WM_DISABLE_HOTKEY = WM_APP + 2
     VK_F4 = 0x73
     HOTKEY_ID = 1099
 
@@ -297,6 +300,7 @@ class DesktopController:
         self._indicator = ScreenIndicator() if self._is_windows else NullIndicator()
         self._tray_icon = None
         self._hotkey_thread_id: int | None = None
+        self._hotkey_registered = False
         self._hotkey_thread = threading.Thread(target=self._hotkey_loop, daemon=True)
         self._hotkey_thread.start()
 
@@ -305,8 +309,9 @@ class DesktopController:
 
     def shutdown(self) -> None:
         self._running = False
-        if sys.platform == 'win32' and self._hotkey_thread_id is not None:
-            ctypes.windll.user32.PostThreadMessageW(self._hotkey_thread_id, self.WM_QUIT, 0, 0)
+        if self._is_windows:
+            self._post_hotkey_thread_message(self.WM_DISABLE_HOTKEY)
+            self._post_hotkey_thread_message(self.WM_QUIT)
         self._hide_tray()
         self._indicator.stop()
 
@@ -320,12 +325,25 @@ class DesktopController:
 
         with self._lock:
             self._enabled = enabled
-            if not enabled:
+            if enabled:
+                self._post_hotkey_thread_message(self.WM_ENABLE_HOTKEY)
+            else:
                 self._hotkey_state = "idle"
                 self._indicator.hide()
                 self._hide_tray()
                 self._evaluate_js("window.desktopSetHotkeyLock && window.desktopSetHotkeyLock(false);")
+                self._post_hotkey_thread_message(self.WM_DISABLE_HOTKEY)
         return self._enabled
+
+    def _post_hotkey_thread_message(self, message: int) -> None:
+        if not self._is_windows:
+            return
+        if self._hotkey_thread_id is None:
+            return
+        try:
+            ctypes.windll.user32.PostThreadMessageW(self._hotkey_thread_id, message, 0, 0)
+        except Exception:
+            pass
 
     def on_window_minimized(self) -> None:
         with self._lock:
@@ -410,18 +428,35 @@ class DesktopController:
         except Exception:
             pass
 
+    def _set_hotkey_registration(self, user32: Any, should_register: bool) -> None:
+        if should_register:
+            if self._hotkey_registered:
+                return
+            if user32.RegisterHotKey(None, self.HOTKEY_ID, 0, self.VK_F4):
+                self._hotkey_registered = True
+            return
+
+        if not self._hotkey_registered:
+            return
+        user32.UnregisterHotKey(None, self.HOTKEY_ID)
+        self._hotkey_registered = False
+
     def _hotkey_loop(self) -> None:
-        if sys.platform != 'win32':
+        if not self._is_windows:
             return
 
         user32 = ctypes.windll.user32
         kernel32 = ctypes.windll.kernel32
 
-        if not user32.RegisterHotKey(None, self.HOTKEY_ID, 0, self.VK_F4):
-            return
-
         self._hotkey_thread_id = kernel32.GetCurrentThreadId()
         msg = wintypes.MSG()
+
+        # Ensure the thread message queue exists before PostThreadMessageW is used.
+        user32.PeekMessageW(ctypes.byref(msg), None, 0, 0, 0)
+
+        with self._lock:
+            enabled_at_start = self._enabled
+        self._set_hotkey_registration(user32, enabled_at_start)
 
         try:
             while self._running:
@@ -429,13 +464,21 @@ class DesktopController:
                 if result == 0 or result == -1:
                     break
 
+                if msg.message == self.WM_ENABLE_HOTKEY:
+                    self._set_hotkey_registration(user32, True)
+                    continue
+
+                if msg.message == self.WM_DISABLE_HOTKEY:
+                    self._set_hotkey_registration(user32, False)
+                    continue
+
                 if msg.message == self.WM_HOTKEY and msg.wParam == self.HOTKEY_ID:
                     self._on_hotkey_pressed()
 
                 user32.TranslateMessage(ctypes.byref(msg))
                 user32.DispatchMessageW(ctypes.byref(msg))
         finally:
-            user32.UnregisterHotKey(None, self.HOTKEY_ID)
+            self._set_hotkey_registration(user32, False)
 
     def _show_tray(self) -> bool:
         if self._tray_icon is not None:
@@ -574,4 +617,5 @@ def main() -> None:
 if __name__ == '__main__':
     mp.freeze_support()
     main()
+
 

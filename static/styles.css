@@ -500,6 +500,12 @@ button:not(:disabled):active {
   transition: transform 160ms ease;
 }
 
+
+.hotkey-toggle-label input:focus-visible + .hotkey-switch {
+  outline: 2px solid rgba(239, 68, 68, 0.95);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
 .hotkey-toggle-label input:checked + .hotkey-switch {
   background: rgba(239, 68, 68, 0.45);
   border-color: rgba(239, 68, 68, 0.75);
@@ -535,3 +541,4 @@ button:not(:disabled):active {
 .hotkey-panel.disabled .hotkey-switch::after {
   background: #9ca3af;
 }
+
