@@ -7,10 +7,8 @@ a = Analysis(
     ['desktop.py'],
     pathex=[],
     binaries=[
-        # IMPORTANT: Before building, download ffmpeg.exe from https://ffmpeg.org/download.html
-        # and place it in the project root directory.
-        # Uncomment the line below once ffmpeg.exe is in place:
-        # ('ffmpeg.exe', '.'),
+        # The desktop app needs FFmpeg to convert microphone recordings to WAV.
+        ('ffmpeg.exe', '.'),
     ],
     datas=[
         ('static', 'static'),

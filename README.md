@@ -7,7 +7,7 @@
 
 ## ⬇️ Download
 
-### [Download Transcription Studio for Windows — v1.1.0](https://github.com/JurajMa/transcription/releases/download/v1.1.0/TranscriptionStudio_Setup_1.1.0.exe)
+### [Download Transcription Studio for Windows — v1.2.0](https://github.com/JurajMa/transcription/releases/download/v1.2.0/TranscriptionStudio_Setup_1.2.0.exe)
 
 One-click installer · Windows 10+ · No Python required. · You only pay OpenAI per use, this app is free
 
@@ -18,22 +18,22 @@ One-click installer · Windows 10+ · No Python required. · You only pay OpenAI
 ![Transcription Studio UI](static/screenshot.png)
 
 > **🔑 Bring Your Own Key (BYOK)** — You need your own OpenAI API key to use this app. Get one at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). This means you:
-> - Always use the **latest state-of-the-art transcription models**
+> - Use OpenAI's recommended file-transcription model, `gpt-transcribe`, in this release
 > - **Control your own usage and costs** directly through OpenAI. **This app is free**, you only pay OpenAI for transcription
 > - Pay **far less** than with subscription-based transcription services
 >
-> ⚠️ **Always [set usage limits](https://platform.openai.com/settings/organization/limits) on your API key. Your API key is sent directly to OpenAI and not stored anywhere. Paste at your own risk — never share this app with untrusted users.**
+> ⚠️ **Always [set usage limits](https://platform.openai.com/settings/organization/limits) on your API key. The key passes through the app's local server to OpenAI and is not saved by the app. Paste at your own risk — never share this app with untrusted users.**
 
 ## Why use this?
 
-Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Paste your OpenAI API key, press record or drop in your audio file, and receive an accurate transcript in seconds. The app **does not store your audio or your API key** — audio is sent directly to the OpenAI API for processing and all temporary files are deleted immediately afterwards.
+Transcription Studio is a lightweight, self-hosted alternative to Wispr Flow. Paste your OpenAI API key, press record or drop in your audio file, and receive a transcript. The app does not save a permanent copy of your recording or API key. It uses temporary local audio files while processing and cleans them up afterwards.
 
 | | Transcription Studio | Wispr Flow |
 |---|---|---|
 | **Cost** | This app is free, Pay-per-use for the model directly via your own OpenAI API key (🥜) | Monthly subscription |
 | **Setup** | One-click install + API key | Download desktop app, create account |
-| **Privacy** | Audio sent to OpenAI API only; nothing stored locally | Audio processed by Wispr's servers |
-| **Flexibility** | Open-source, customisable, CLI + web UI | Closed-source desktop app |
+| **Privacy** | Audio sent to OpenAI API; temporary local files cleaned up after processing | Audio processed by Wispr's servers |
+| **Flexibility** | Source-available, customisable, CLI + web UI | Closed-source desktop app |
 
 ## Installation
 
@@ -46,7 +46,7 @@ The easiest way to get started is to download the Windows installer from the [Re
 ## How it works
 
 1. Audio is split into overlapping chunks (~4.5 min each) to stay within API limits.
-2. Each chunk is sent to the OpenAI transcription API (`gpt-4o-transcribe` by default).
+2. Each chunk is sent to the OpenAI transcription API (`gpt-transcribe` by default), without a task-instruction prompt or previous transcript text.
 3. Overlapping text between chunks is automatically deduplicated.
 4. The final stitched transcript is displayed and can be copied or downloaded.
 
@@ -55,11 +55,16 @@ The easiest way to get started is to download the Windows installer from the [Re
 - 🎙️ **Record directly** in the app or drag & drop / upload audio files
 - 🎵 **Multi-format support** — WAV, M4A, MP3, MP4, AAC, FLAC, OGG, WEBM (auto-converted to WAV)
 - 🔐 **Your API key stays private** — entered per-session, never stored or logged
-- 🗑️ **No audio storage** — temporary files are cleaned up immediately after transcription
+- 🗑️ **No persistent audio storage** — temporary processing files are cleaned up after transcription
 - ⚡ **Intelligent chunking** with overlap and deduplication for seamless long-form transcripts
 - 💾 **Copy or save** the transcript as a `.txt` file
 
 ## Changelog
+
+### v1.2.0
+- Switched file transcription to OpenAI's recommended `gpt-transcribe` model.
+- Removed the task-instruction prompt and previous-chunk transcript context from API requests; chunk overlap and deduplication remain.
+- Ensured the Windows build bundles FFmpeg for microphone recording conversion.
 
 ### v1.1.0
 - Added Windows hotkey mode (`F4`) for start/stop recording while minimized to tray.
@@ -69,7 +74,7 @@ The easiest way to get started is to download the Windows installer from the [Re
 ## Privacy & security
 
 - **API key** — entered in the app, sent over HTTPS to the OpenAI API, and discarded after the request. It is never written to disk or logged.
-- **Audio data** — uploaded audio is held in a temporary file only for the duration of processing. It is sent to the OpenAI API for transcription and then immediately deleted. The app does not retain, log, or transmit your audio anywhere else.
+- **Audio data** — the open app keeps the selected recording in memory so it can be transcribed again. The local server writes temporary files during processing and attempts to delete them when processing ends, including after an error. Audio chunks are sent to the OpenAI API. The app does not intentionally save a permanent audio copy.
 - **Transcripts** — displayed in the app. Nothing is saved unless you explicitly save or copy the text.
 
 ## Disclaimer
@@ -215,7 +220,7 @@ Direct PyInstaller (alternative):
 ### Notes
 
 - The build helper now runs PyInstaller via the current Python interpreter (`python -m PyInstaller`), so activation is optional.
-- `build_windows.spec` already includes `ffmpeg.exe` and tray/hotkey dependencies.
+- `build_windows.spec` bundles `ffmpeg.exe` and tray/hotkey dependencies. Keep `ffmpeg.exe` in the project root when building Windows packages.
 - `build_mac.spec` keeps ffmpeg optional by default; uncomment `('ffmpeg', '.')` if you want ffmpeg bundled in macOS builds.
 - Cross-compilation is not supported (build Windows on Windows, macOS on macOS).
 

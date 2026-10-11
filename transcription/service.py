@@ -12,15 +12,6 @@ from openai import OpenAI
 
 LogFn = Callable[[str], None]
 
-# Number of characters from the previous chunk's transcript used as prompt context
-_PROMPT_CONTEXT_CHARS = 500
-_TRANSCRIPTION_PROMPT = (
-    "Only transcribe spoken words; exclude all non-verbal and background noises. "
-    "Do NOT omit, summarize, or clean up anything related to spoken words. "
-    "Output every word as spoken. Do NOT truncate or leave out anything in the transcript, that is spoken."
-)
-
-
 def human_time(seconds: float) -> str:
     minutes, secs = divmod(int(seconds), 60)
     hours, minutes = divmod(minutes, 60)
@@ -54,7 +45,7 @@ class TranscriptionService:
     def __init__(
         self,
         *,
-        model: str = "gpt-4o-transcribe",
+        model: str = "gpt-transcribe",
         response_format: str = "json",
         max_chunk_secs: float = 270.0,
         chunk_overlap_secs: float = 2.0,
@@ -120,9 +111,7 @@ class TranscriptionService:
 
             for index, chunk_path in enumerate(chunk_paths, start=1):
                 log(f"Transcribing chunk {index}/{total_chunks}: {chunk_path.name}")
-                context = previous_text[-_PROMPT_CONTEXT_CHARS:] if previous_text else ""
-                prompt = f"{_TRANSCRIPTION_PROMPT} {context}".strip() if context else _TRANSCRIPTION_PROMPT
-                chunk_text = self._transcribe_file(client, chunk_path, log, prompt=prompt).strip()
+                chunk_text = self._transcribe_file(client, chunk_path, log).strip()
                 if previous_text:
                     chunk_text = _dedup_overlap(previous_text, chunk_text)
                 previous_text = chunk_text
@@ -241,7 +230,7 @@ class TranscriptionService:
             out.setframerate(sr)
             out.writeframes(silence_frames + audio_frames + silence_frames)
 
-    def _transcribe_file(self, client: OpenAI, path: Path, log: LogFn, *, prompt: str = "") -> str:
+    def _transcribe_file(self, client: OpenAI, path: Path, log: LogFn) -> str:
         # Create a silence-padded version to prevent edge truncation
         padded_path = path.with_name(path.stem + "_padded.wav")
         try:
@@ -262,7 +251,6 @@ class TranscriptionService:
                             model=self.model,
                             file=fh,
                             response_format=self.response_format,
-                            prompt=prompt,
                         )
                     text = response.text if hasattr(response, "text") else str(response)
                     return text

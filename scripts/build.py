@@ -38,11 +38,15 @@ def main() -> None:
     # Check that ffmpeg binary exists
     ffmpeg_path = project_root / ffmpeg_name
     if not ffmpeg_path.exists():
+        if system == "Windows":
+            print(f"Error: {ffmpeg_name} is required for the Windows build.", file=sys.stderr)
+            print(f"Place it in the project root: {project_root}", file=sys.stderr)
+            sys.exit(1)
         print(f"Warning: {ffmpeg_name} not found in project root.", file=sys.stderr)
         print(f"Please download a static ffmpeg build from https://ffmpeg.org/download.html", file=sys.stderr)
         print(f"and place the {ffmpeg_name} binary in: {project_root}", file=sys.stderr)
         print(f"\nYou can still build without ffmpeg, but audio conversion won't work.", file=sys.stderr)
-        print(f"Make sure to uncomment the ffmpeg line in {spec_file} before building with it.", file=sys.stderr)
+        print(f"The macOS spec leaves FFmpeg optional by default.", file=sys.stderr)
         response = input("\nContinue without ffmpeg? [y/N] ")
         if response.lower() != 'y':
             sys.exit(1)
@@ -64,7 +68,7 @@ def main() -> None:
     print(f"Using spec file: {spec_file}")
     try:
         subprocess.run(
-            [sys.executable, "-m", "PyInstaller", spec_file],
+            [sys.executable, "-m", "PyInstaller", "--noconfirm", spec_file],
             cwd=project_root,
             check=True,
         )
