@@ -82,7 +82,7 @@ except (ValueError, OSError):
     # Signal handlers may not work in some environments (e.g., Windows GUI mode)
     pass
 
-app = FastAPI(title="Transcription Studio", version="1.0")
+app = FastAPI(title="Transcription Studio", version="1.2.0")
 AudioSegment.converter = _get_ffmpeg_path()
 app.mount("/static", StaticFiles(directory=_get_base_dir() / "static"), name="static")
 
